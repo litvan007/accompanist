@@ -6,7 +6,7 @@ import lyricsgenius
 from accompanist.config import settings
 
 
-def get_lyrics_from_genius(artist_name: str, song_name: str) -> str:
+def get_lyrics_from_genius(artist_name: str, song_name: str) -> tuple[str, str]:
     genius = lyricsgenius.Genius(settings.GENIUS_CLIENT_ACCESS_TOKEN)
 
     # Keep section headers (e.g. [Chorus]) in lyrics

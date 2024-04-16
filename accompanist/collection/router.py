@@ -7,6 +7,7 @@ from accompanist.collection.schema import (
     AlbumInfoFromUser,
     TrackUpdateRequest,
 )
+from accompanist.exceptions import TrackNotFoundException
 
 router = APIRouter(
     tags=["User's music collection"],
@@ -16,6 +17,12 @@ router = APIRouter(
 @router.post("/album", status_code=status.HTTP_202_ACCEPTED)
 async def add_album(album_info: AlbumInfoFromUser):
     await service.add_album(album_info)
+
+
+@router.get("/album/{album_id}")
+async def get_album(album_id: int):
+    album = await AlbumDAO.get_by_id_with_tracks_info(album_id)
+    return album
 
 
 @router.delete("/album/{album_id}")
@@ -29,22 +36,17 @@ async def get_all_alumbs():
     return albums
 
 
-@router.get("/album/{album_id}")
-async def get_album(album_id: int):
-    album = await AlbumDAO.get_by_id_with_tracks_info(album_id)
-    return album
-
-
 @router.get("/track/{track_id}")
 async def get_track(track_id: int):
     track = await TrackDAO.find_one_or_none(id=track_id)
+    if not track:
+        raise TrackNotFoundException(id=track_id)
     return track
 
 
 @router.patch("/track/{track_id}")
 async def update_track(track_id: int, update_request: TrackUpdateRequest):
-    update_data = update_request.model_dump(exclude_unset=True)
-    updated_track = await TrackDAO.update(track_id, update_data)
+    updated_track = await TrackDAO.update(track_id, update_request)
     return updated_track
 
 

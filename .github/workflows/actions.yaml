@@ -11,13 +11,14 @@ jobs:
       run: cp .env.sample .env
 
     - name: Build and run containers
-      run: DOCKER_BUILDKIT=1 docker-compose up -d backend
+      run: DOCKER_BUILDKIT=1 docker-compose up -d backend db
 
     - name: Check running containers
       run: docker-compose ps -a
 
     - name: Test with pytest
-      run: docker-compose exec -T backend pytest 2>&1 > pytest_log.txt
+      run: docker-compose exec -T backend python -m pytest 2>&1 > pytest_log.txt
 
     - name: Show pytest output
+      if: always()
       run: cat pytest_log.txt
